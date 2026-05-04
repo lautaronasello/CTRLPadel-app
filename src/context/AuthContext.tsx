@@ -12,6 +12,7 @@ import { auth } from "@/lib/firebase";
 
 interface AuthContextType {
   user: User | null;
+  userData: any | null; // Datos de nuestra DB (incluye rol)
   loading: boolean;
   loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
@@ -22,30 +23,33 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [userData, setUserData] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
-      setLoading(false);
-
+      
       if (user) {
         // Sincronizar con el backend
         try {
           const token = await user.getIdToken();
-          console.log('%c🔑 TU AUTH TOKEN PARA SWAGGER:', 'color: #ccff00; font-weight: bold;', token);
-          
-          await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/sync`, {
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/sync`, {
             method: 'POST',
             headers: {
               'Authorization': `Bearer ${token}`,
               'Content-Type': 'application/json',
             },
           });
+          const data = await res.json();
+          setUserData(data); // Guardamos el rol y otros datos de la DB
         } catch (error) {
           console.error("Error syncing with backend:", error);
         }
+      } else {
+        setUserData(null);
       }
+      setLoading(false);
     });
 
     return () => unsubscribe();
@@ -74,7 +78,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, loginWithGoogle, logout, getToken }}>
+    <AuthContext.Provider value={{ user, userData, loading, loginWithGoogle, logout, getToken }}>
       {children}
     </AuthContext.Provider>
   );
