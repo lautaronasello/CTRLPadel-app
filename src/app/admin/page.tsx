@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Plus, Edit2, Trash2, Search, ExternalLink } from 'lucide-react';
 import { Product } from '../../types/product';
 import ProductModal from './ProductModal';
+import OrdersTable from './OrdersTable';
 
 export default function AdminDashboard() {
   const { user, userData, loading: authLoading, getToken } = useAuth();
@@ -17,6 +18,9 @@ export default function AdminDashboard() {
   // Estados para el Modal
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  
+  // Estado para la pestaña activa
+  const [activeTab, setActiveTab] = useState<'products' | 'orders'>('products');
 
   useEffect(() => {
     const init = async () => {
@@ -28,10 +32,12 @@ export default function AdminDashboard() {
         return;
       }
 
-      await fetchProducts();
+      if (activeTab === 'products') {
+        await fetchProducts();
+      }
     };
     init();
-  }, [user, userData, authLoading, router]);
+  }, [user, userData, authLoading, router, activeTab]);
 
   const fetchProducts = async () => {
     try {
@@ -69,7 +75,7 @@ export default function AdminDashboard() {
       p.brand.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
-  if (authLoading || loading) {
+  if (authLoading || (loading && activeTab === 'products')) {
     return (
       <div className='min-h-screen flex items-center justify-center'>
         <div className='animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary'></div>
@@ -86,19 +92,37 @@ export default function AdminDashboard() {
             ADMIN <span className='text-primary italic'>PANEL</span>
           </h1>
           <p className='text-muted'>
-            Gestión de inventario y productos de Elite Padel.
+            Gestión de inventario y pedidos de Elite Padel.
           </p>
         </div>
 
-        <button
-          className='bg-primary text-black px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:shadow-[0_0_20px_rgba(204,255,0,0.3)] transition-all uppercase tracking-widest text-xs'
-          onClick={() => {
-            setEditingProduct(null);
-            setIsModalOpen(true);
-          }}
+        {activeTab === 'products' && (
+          <button
+            className='bg-primary text-black px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:shadow-[0_0_20px_rgba(204,255,0,0.3)] transition-all uppercase tracking-widest text-xs'
+            onClick={() => {
+              setEditingProduct(null);
+              setIsModalOpen(true);
+            }}
+          >
+            <Plus size={18} />
+            Nuevo Producto
+          </button>
+        )}
+      </div>
+
+      {/* Tabs Navigation */}
+      <div className='flex gap-4 border-b border-border'>
+        <button 
+          onClick={() => setActiveTab('products')}
+          className={`pb-4 px-2 text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'products' ? 'text-primary border-b-2 border-primary' : 'text-muted hover:text-foreground'}`}
         >
-          <Plus size={18} />
-          Nuevo Producto
+          Productos
+        </button>
+        <button 
+          onClick={() => setActiveTab('orders')}
+          className={`pb-4 px-2 text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'orders' ? 'text-primary border-b-2 border-primary' : 'text-muted hover:text-foreground'}`}
+        >
+          Pedidos
         </button>
       </div>
 
@@ -119,112 +143,116 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      {/* Table Container */}
-      <div className='bg-card border border-border rounded-3xl overflow-hidden shadow-xl'>
-        {/* Search & Actions */}
-        <div className='p-6 border-b border-border flex items-center gap-4 bg-muted/5'>
-          <div className='relative flex-1'>
-            <Search
-              className='absolute left-3 top-1/2 -translate-y-1/2 text-muted'
-              size={18}
-            />
-            <input
-              type='text'
-              placeholder='Buscar producto o marca...'
-              className='w-full bg-background border border-border rounded-xl py-2 pl-10 pr-4 outline-none focus:border-primary transition-all text-sm'
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+      {/* Main Content */}
+      {activeTab === 'products' ? (
+        <div className='bg-card border border-border rounded-3xl overflow-hidden shadow-xl'>
+          {/* Search & Actions */}
+          <div className='p-6 border-b border-border flex items-center gap-4 bg-muted/5'>
+            <div className='relative flex-1'>
+              <Search
+                className='absolute left-3 top-1/2 -translate-y-1/2 text-muted'
+                size={18}
+              />
+              <input
+                type='text'
+                placeholder='Buscar producto o marca...'
+                className='w-full bg-background border border-border rounded-xl py-2 pl-10 pr-4 outline-none focus:border-primary transition-all text-sm'
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className='overflow-x-auto'>
+            <table className='w-full text-left border-collapse'>
+              <thead>
+                <tr className='bg-muted/10 text-muted uppercase text-[10px] font-black tracking-widest'>
+                  <th className='px-6 py-4'>Producto</th>
+                  <th className='px-6 py-4'>Categoría</th>
+                  <th className='px-6 py-4'>Precio</th>
+                  <th className='px-6 py-4 text-center'>Acciones</th>
+                </tr>
+              </thead>
+              <tbody className='divide-y divide-border'>
+                {filteredProducts.map((product) => (
+                  <tr
+                    key={product.id}
+                    className='hover:bg-muted/5 transition-colors group'
+                  >
+                    <td className='px-6 py-4'>
+                      <div className='flex items-center gap-4'>
+                        <div className='w-12 h-12 bg-muted/20 rounded-lg overflow-hidden flex-shrink-0'>
+                          {product.variants?.[0]?.imageUrl ? (
+                            <img
+                              src={product.variants[0].imageUrl}
+                              alt={product.name}
+                              className='w-full h-full object-cover'
+                            />
+                          ) : (
+                            <div className='w-full h-full flex items-center justify-center text-xs text-muted italic'>
+                              No img
+                            </div>
+                          )}
+                        </div>
+                        <div>
+                          <p className='font-bold text-foreground text-sm leading-tight'>
+                            {product.name}
+                          </p>
+                          <p className='text-xs text-muted'>{product.brand}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className='px-6 py-4'>
+                      <span className='text-[10px] font-black bg-muted/20 px-2 py-1 rounded text-muted'>
+                        {product.category}
+                      </span>
+                    </td>
+                    <td className='px-6 py-4 font-bold text-primary'>
+                      ${product.variants?.[0]?.price?.toLocaleString() || '0'}
+                    </td>
+                    <td className='px-6 py-4'>
+                      <div className='flex items-center justify-center gap-2'>
+                        <button
+                          className='p-2 hover:bg-blue-500/10 hover:text-blue-500 rounded-lg transition-all text-muted'
+                          title='Editar'
+                          onClick={() => {
+                            setEditingProduct(product);
+                            setIsModalOpen(true);
+                          }}
+                        >
+                          <Edit2 size={16} />
+                        </button>
+                        <button
+                          className='p-2 hover:bg-red-500/10 hover:text-red-500 rounded-lg transition-all text-muted'
+                          title='Eliminar'
+                          onClick={() => handleDelete(product.id)}
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                        <button
+                          className='p-2 hover:bg-primary/10 hover:text-primary rounded-lg transition-all text-muted'
+                          title='Ver en tienda'
+                          onClick={() => router.push(`/catalog/${product.id}`)}
+                        >
+                          <ExternalLink size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {filteredProducts.length === 0 && (
+              <div className='py-20 text-center space-y-2'>
+                <p className='text-muted italic'>No se encontraron productos.</p>
+              </div>
+            )}
           </div>
         </div>
-
-        <div className='overflow-x-auto'>
-          <table className='w-full text-left border-collapse'>
-            <thead>
-              <tr className='bg-muted/10 text-muted uppercase text-[10px] font-black tracking-widest'>
-                <th className='px-6 py-4'>Producto</th>
-                <th className='px-6 py-4'>Categoría</th>
-                <th className='px-6 py-4'>Precio</th>
-                <th className='px-6 py-4 text-center'>Acciones</th>
-              </tr>
-            </thead>
-            <tbody className='divide-y divide-border'>
-              {filteredProducts.map((product) => (
-                <tr
-                  key={product.id}
-                  className='hover:bg-muted/5 transition-colors group'
-                >
-                  <td className='px-6 py-4'>
-                    <div className='flex items-center gap-4'>
-                      <div className='w-12 h-12 bg-muted/20 rounded-lg overflow-hidden flex-shrink-0'>
-                        {product.variants?.[0]?.imageUrl ? (
-                          <img
-                            src={product.variants[0].imageUrl}
-                            alt={product.name}
-                            className='w-full h-full object-cover'
-                          />
-                        ) : (
-                          <div className='w-full h-full flex items-center justify-center text-xs text-muted italic'>
-                            No img
-                          </div>
-                        )}
-                      </div>
-                      <div>
-                        <p className='font-bold text-foreground text-sm leading-tight'>
-                          {product.name}
-                        </p>
-                        <p className='text-xs text-muted'>{product.brand}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className='px-6 py-4'>
-                    <span className='text-[10px] font-black bg-muted/20 px-2 py-1 rounded text-muted'>
-                      {product.category}
-                    </span>
-                  </td>
-                  <td className='px-6 py-4 font-bold text-primary'>
-                    ${product.variants?.[0]?.price?.toLocaleString() || '0'}
-                  </td>
-                  <td className='px-6 py-4'>
-                    <div className='flex items-center justify-center gap-2'>
-                      <button
-                        className='p-2 hover:bg-blue-500/10 hover:text-blue-500 rounded-lg transition-all text-muted'
-                        title='Editar'
-                        onClick={() => {
-                          setEditingProduct(product);
-                          setIsModalOpen(true);
-                        }}
-                      >
-                        <Edit2 size={16} />
-                      </button>
-                      <button
-                        className='p-2 hover:bg-red-500/10 hover:text-red-500 rounded-lg transition-all text-muted'
-                        title='Eliminar'
-                        onClick={() => handleDelete(product.id)}
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                      <button
-                        className='p-2 hover:bg-primary/10 hover:text-primary rounded-lg transition-all text-muted'
-                        title='Ver en tienda'
-                        onClick={() => router.push(`/catalog/${product.id}`)}
-                      >
-                        <ExternalLink size={16} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          {filteredProducts.length === 0 && (
-            <div className='py-20 text-center space-y-2'>
-              <p className='text-muted italic'>No se encontraron productos.</p>
-            </div>
-          )}
-        </div>
-      </div>
+      ) : (
+        <OrdersTable getToken={getToken} />
+      )}
 
       <ProductModal 
         isOpen={isModalOpen}

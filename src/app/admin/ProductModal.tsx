@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, Save, Loader2 } from 'lucide-react';
+import { X, Save, Loader2, Upload, Image as ImageIcon } from 'lucide-react';
 import { Product, Category } from '@/types/product';
 
 interface ProductModalProps {
@@ -14,6 +14,7 @@ interface ProductModalProps {
 
 export default function ProductModal({ isOpen, onClose, onSave, product, getToken }: ProductModalProps) {
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     brand: '',
@@ -50,6 +51,35 @@ export default function ProductModal({ isOpen, onClose, onSave, product, getToke
 
   if (!isOpen) return null;
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    const formDataCloudinary = new FormData();
+    formDataCloudinary.append('file', file);
+    formDataCloudinary.append('upload_preset', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || '');
+
+    try {
+      const res = await fetch(
+        `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+        {
+          method: 'POST',
+          body: formDataCloudinary,
+        }
+      );
+      const data = await res.json();
+      if (data.secure_url) {
+        setFormData({ ...formData, imageUrl: data.secure_url });
+      }
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      alert('Error al subir la imagen');
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -63,17 +93,20 @@ export default function ProductModal({ isOpen, onClose, onSave, product, getToke
       const method = product ? 'PATCH' : 'POST';
 
       const body = {
-        name: formData.name,
-        brand: formData.brand,
+        name: formData.brand ? `${formData.brand} - ${formData.name}` : formData.name,
         description: formData.description,
         category: formData.category,
+        imageUrl: formData.imageUrl,
         variants: [
           {
+            sku: `${formData.name.substring(0, 3).toUpperCase()}-${Date.now().toString().slice(-4)}`,
+            name: "Única",
             price: Number(formData.price),
             stock: Number(formData.stock),
-            imageUrl: formData.imageUrl,
-            size: "Standard",
-            color: "Default"
+            attributes: {
+              size: "Standard",
+              color: "Default"
+            }
           }
         ]
       };
@@ -117,7 +150,59 @@ export default function ProductModal({ isOpen, onClose, onSave, product, getToke
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-8 space-y-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          
+          {/* Image Upload Area */}
+          <div className="space-y-4">
+            <label className="text-[10px] font-black uppercase tracking-widest text-muted">Imagen del Producto</label>
+            <div className="flex flex-col md:flex-row gap-6 items-center">
+              <div className="w-32 h-32 bg-muted/20 rounded-2xl border-2 border-dashed border-border flex items-center justify-center overflow-hidden group relative">
+                {formData.imageUrl ? (
+                  <>
+                    <img src={formData.imageUrl} className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <ImageIcon className="text-white" size={24} />
+                    </div>
+                  </>
+                ) : (
+                  <ImageIcon className="text-muted" size={32} />
+                )}
+                {uploading && (
+                  <div className="absolute inset-0 bg-card/80 flex items-center justify-center">
+                    <Loader2 className="animate-spin text-primary" size={24} />
+                  </div>
+                )}
+              </div>
+              
+              <div className="flex-1 space-y-3">
+                <div className="flex gap-2">
+                  <label className="cursor-pointer bg-foreground text-background px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 hover:bg-primary hover:text-black transition-all">
+                    <Upload size={14} />
+                    {uploading ? 'Subiendo...' : 'Subir Foto'}
+                    <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} disabled={uploading} />
+                  </label>
+                  {formData.imageUrl && (
+                    <button 
+                      type="button"
+                      onClick={() => setFormData({...formData, imageUrl: ''})}
+                      className="text-red-500 text-[10px] font-bold uppercase tracking-widest hover:underline"
+                    >
+                      Quitar
+                    </button>
+                  )}
+                </div>
+                <p className="text-[10px] text-muted italic">Formatos: JPG, PNG, WEBP. Tamaño máx: 5MB.</p>
+                <input 
+                  type="text" 
+                  className="w-full bg-background/50 border border-border rounded-xl py-2 px-3 outline-none focus:border-primary transition-all text-[10px]"
+                  value={formData.imageUrl}
+                  onChange={(e) => setFormData({...formData, imageUrl: e.target.value})}
+                  placeholder="O pega una URL directa aquí..."
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-border/50">
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase tracking-widest text-muted">Nombre del Producto</label>
               <input 
