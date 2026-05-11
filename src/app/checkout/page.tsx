@@ -14,6 +14,8 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
+    name: '',
+    email: '',
     address: '',
     city: '',
     zip: '',
@@ -26,18 +28,22 @@ export default function CheckoutPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return alert('Debes iniciar sesión para comprar');
     
     setLoading(true);
-    const token = await getToken();
+    const token = user ? await getToken() : null;
 
     try {
+      const headers: any = {
+        'Content-Type': 'application/json',
+      };
+      
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const orderRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
+        headers,
         body: JSON.stringify({
           items: cart.map(item => ({ productId: item.id, quantity: item.quantity })),
           shippingData: formData
@@ -49,8 +55,7 @@ export default function CheckoutPage() {
       const payRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/payments/create-preference`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({ orderId: order.id })
       });
@@ -92,6 +97,34 @@ export default function CheckoutPage() {
           </h1>
 
           <form onSubmit={handleSubmit} className="glass p-8 rounded-[2.5rem] border-border space-y-6">
+            {!user && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6 border-b border-border/30">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-primary ml-2">Tu Nombre</label>
+                  <input 
+                    required
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    placeholder="Ej: Juan Pérez"
+                    className="w-full bg-background/50 border border-border rounded-2xl px-6 py-4 text-foreground focus:outline-none focus:border-primary/50 transition-all placeholder:text-muted/30"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-primary ml-2">Email de contacto</label>
+                  <input 
+                    required
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    placeholder="tu@email.com"
+                    className="w-full bg-background/50 border border-border rounded-2xl px-6 py-4 text-foreground focus:outline-none focus:border-primary/50 transition-all placeholder:text-muted/30"
+                  />
+                </div>
+              </div>
+            )}
+
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-2">Dirección Completa</label>
               <input 

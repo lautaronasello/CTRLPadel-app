@@ -1,16 +1,14 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import AiFeaturedSection from '@/components/AiFeaturedSection';
 
 export default function Home() {
   return (
     <div className='flex flex-col items-center overflow-hidden px-6'>
       {/* Hero Section */}
       <section className='relative w-full max-w-7xl pt-10 pb-20 flex flex-col items-center'>
-        {/* Background Glows */}
-        <div className='absolute top-0 -left-20 w-72 h-72 bg-primary/20 blur-[120px] rounded-full' />
-        <div className='absolute bottom-0 -right-20 w-96 h-96 bg-primary/10 blur-[150px] rounded-full' />
-
         <div className='z-10 text-center space-y-8 animate-in fade-in slide-in-from-bottom-10 duration-1000'>
+          {/* ... (Badge Nueva Colección igual) */}
           <div className='inline-flex items-center gap-2 px-3 py-1 rounded-full border border-primary/30 bg-primary/5 text-primary text-xs font-bold tracking-widest uppercase mb-4'>
             <span className='relative flex h-2 w-2'>
               <span className='animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75'></span>
@@ -34,7 +32,7 @@ export default function Home() {
           <div className='flex flex-col sm:flex-row items-center justify-center gap-6 pt-4'>
             <Link
               href={'/catalog'}
-              className='px-10 py-4 rounded-full primary-gradient text-black font-bold text-lg hover:shadow-[0_0_40px_-10px_rgba(204,255,0,0.5)] transition-all transform hover:-translate-y-1'
+              className='px-10 text-black! py-4 rounded-full primary-gradient font-bold text-lg hover:shadow-[0_0_40px_-10px_rgba(204,255,0,0.5)] transition-all transform hover:-translate-y-1'
             >
               Explorar Catálogo
             </Link>
@@ -59,6 +57,8 @@ export default function Home() {
           <div className='absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent' />
         </div>
       </section>
+
+      <AiFeaturedSection />
 
       {/* Stats / Proof Section */}
       <section className='w-full max-w-7xl py-20 grid grid-cols-2 md:grid-cols-4 gap-8 border-y border-border'>

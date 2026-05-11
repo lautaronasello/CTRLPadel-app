@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ProductCard from '@/components/ProductCard';
 import Link from 'next/link';
+import { useAuth } from '@/context/AuthContext';
 
 const STEPS = [
   {
@@ -45,9 +46,11 @@ const STEPS = [
 ];
 
 export default function AiWizardPage() {
+  const { user, getToken, loginWithGoogle } = useAuth();
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<any>({ budget: 250000 });
   const [result, setResult] = useState<any>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [recommendedProducts, setRecommendedProducts] = useState<any[]>([]);
 
@@ -61,11 +64,21 @@ export default function AiWizardPage() {
   };
 
   const handleSubmit = async () => {
+    if (!user) {
+      setErrorMsg("¡Hola! Para usar nuestro Asistente de IA y recibir las mejores recomendaciones, por favor inicia sesión. ¡Es gratis y te ayudará a encontrar tu pala ideal!");
+      return;
+    }
+
     setLoading(true);
+    setErrorMsg(null);
     try {
+      const token = await getToken();
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ai/recommend`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({
           level: formData.level,
           style: formData.style,
@@ -73,6 +86,12 @@ export default function AiWizardPage() {
           budget: formData.budget
         })
       });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Error al obtener la recomendación");
+      }
+
       const data = await res.json();
       setResult(data);
 
@@ -84,8 +103,9 @@ export default function AiWizardPage() {
         const products = await Promise.all(productPromises);
         setRecommendedProducts(products.filter(p => p.id));
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error in AI Wizard:", error);
+      setErrorMsg(error.message || "Ocurrió un error inesperado. Inténtalo de nuevo.");
     } finally {
       setLoading(false);
     }
@@ -155,6 +175,19 @@ export default function AiWizardPage() {
                   onChange={(e) => setFormData({ ...formData, budget: parseInt(e.target.value) })}
                   className="w-full h-2 bg-border rounded-lg appearance-none cursor-pointer accent-primary"
                 />
+                {errorMsg && (
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-6 rounded-2xl bg-red-500/10 border border-red-500/20 text-center space-y-4">
+                    <p className="text-red-500 text-sm font-medium">{errorMsg}</p>
+                    {!user && (
+                      <button 
+                        onClick={loginWithGoogle}
+                        className="px-6 py-2 bg-primary text-black! rounded-full text-[10px] font-black uppercase tracking-widest hover:scale-105 hover:shadow-[0_0_20px_rgba(204,255,0,0.3)] transition-all"
+                      >
+                        Iniciar Sesión ahora
+                      </button>
+                    )}
+                  </motion.div>
+                )}
                 <button 
                   onClick={handleSubmit}
                   className="w-full py-5 rounded-2xl primary-gradient text-black font-black text-xl hover:shadow-[0_0_50px_-10px_rgba(204,255,0,0.6)] transition-all"

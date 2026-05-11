@@ -14,18 +14,18 @@ export default function AdminDashboard() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  
+
   // Estados para el Modal
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  
+
   // Estado para la pestaña activa
   const [activeTab, setActiveTab] = useState<'products' | 'orders'>('products');
 
   useEffect(() => {
     const init = async () => {
       if (authLoading) return;
-      
+
       // Si no hay usuario o si el usuario NO es admin, lo sacamos
       if (!user || userData?.role !== 'ADMIN') {
         router.push('/');
@@ -57,10 +57,13 @@ export default function AdminDashboard() {
 
     try {
       const token = await getToken();
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/products/${id}`,
+        {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
 
       if (res.ok) fetchProducts();
       else alert('Error al eliminar');
@@ -98,7 +101,7 @@ export default function AdminDashboard() {
 
         {activeTab === 'products' && (
           <button
-            className='bg-primary text-black px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:shadow-[0_0_20px_rgba(204,255,0,0.3)] transition-all uppercase tracking-widest text-xs'
+            className='bg-primary text-[#113360]! px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:shadow-[0_0_20px_rgba(204,255,0,0.3)] transition-all uppercase tracking-widest text-xs'
             onClick={() => {
               setEditingProduct(null);
               setIsModalOpen(true);
@@ -112,13 +115,13 @@ export default function AdminDashboard() {
 
       {/* Tabs Navigation */}
       <div className='flex gap-4 border-b border-border'>
-        <button 
+        <button
           onClick={() => setActiveTab('products')}
           className={`pb-4 px-2 text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'products' ? 'text-primary border-b-2 border-primary' : 'text-muted hover:text-foreground'}`}
         >
           Productos
         </button>
-        <button 
+        <button
           onClick={() => setActiveTab('orders')}
           className={`pb-4 px-2 text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'orders' ? 'text-primary border-b-2 border-primary' : 'text-muted hover:text-foreground'}`}
         >
@@ -182,9 +185,15 @@ export default function AdminDashboard() {
                     <td className='px-6 py-4'>
                       <div className='flex items-center gap-4'>
                         <div className='w-12 h-12 bg-muted/20 rounded-lg overflow-hidden flex-shrink-0'>
-                          {product.variants?.[0]?.imageUrl ? (
+                          {product.variants?.[0]?.imageUrl || product.imageUrl ? (
+                            // eslint-disable-next-line @next/next/no-img-element
                             <img
-                              src={product.variants[0].imageUrl}
+                              src={(() => {
+                                const url = product.variants?.[0]?.imageUrl || product.imageUrl;
+                                if (!url) return '/next.svg';
+                                if (url.startsWith('http')) return url;
+                                return `${process.env.NEXT_PUBLIC_API_URL}${url}`;
+                              })()}
                               alt={product.name}
                               className='w-full h-full object-cover'
                             />
@@ -245,7 +254,9 @@ export default function AdminDashboard() {
 
             {filteredProducts.length === 0 && (
               <div className='py-20 text-center space-y-2'>
-                <p className='text-muted italic'>No se encontraron productos.</p>
+                <p className='text-muted italic'>
+                  No se encontraron productos.
+                </p>
               </div>
             )}
           </div>
@@ -254,7 +265,7 @@ export default function AdminDashboard() {
         <OrdersTable getToken={getToken} />
       )}
 
-      <ProductModal 
+      <ProductModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSave={fetchProducts}

@@ -19,11 +19,6 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
   const router = useRouter();
 
   const handleCheckout = () => {
-    if (!user) {
-      alert('Debes iniciar sesión para comprar');
-      loginWithGoogle();
-      return;
-    }
     onClose();
     router.push('/checkout');
   };
