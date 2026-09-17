@@ -95,7 +95,7 @@ export default function AdminDashboard() {
             ADMIN <span className='text-primary italic'>PANEL</span>
           </h1>
           <p className='text-muted'>
-            Gestión de inventario y pedidos de Elite Padel.
+            Gestión de inventario y pedidos de Padel AI Assistant.
           </p>
         </div>
 

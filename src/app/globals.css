@@ -1,6 +1,6 @@
 @import 'tailwindcss';
 
-/* Colores Base (Modo Claro - Elite Padel Palette) */
+/* Colores Base (Modo Claro - Padel AI Assistant Palette) */
 /* :root {
   --background: #fafafa; 
   --foreground: #113360; 
@@ -72,8 +72,8 @@ h6,
 /* Glassmorphism Dinámico */
 .glass {
   background-color: var(--glass-bg);
-  backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
   border: 1px solid var(--glass-border);
   box-shadow: 0 8px 32px 0 rgba(17, 51, 96, 0.05);
 }

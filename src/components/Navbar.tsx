@@ -17,10 +17,10 @@ export default function Navbar() {
         <div className='flex items-center justify-between w-full max-w-7xl px-8 py-4 glass rounded-2xl border-white/10 shadow-2xl'>
           <Link href='/' className='flex items-center gap-2'>
             <div className='w-8 h-8 primary-gradient rounded-lg flex items-center justify-center font-bold text-black text-xl'>
-              C
+              P
             </div>
             <span className='text-xl font-bold tracking-tighter uppercase text-foreground'>
-              CTRL <span className='text-primary'>PADEL</span>
+              PADEL <span className='text-primary'>AI ASSISTANT</span>
             </span>
           </Link>
 

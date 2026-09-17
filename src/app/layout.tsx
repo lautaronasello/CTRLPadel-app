@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'CTRL PADEL | Shop & AI Assistant',
+  title: 'PADEL AI ASSISTANT | Shop & AI Assistant',
   description: 'La tienda de pádel más avanzada con asistente inteligente.',
 };
 
