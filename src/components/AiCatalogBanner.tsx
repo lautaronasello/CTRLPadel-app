@@ -11,7 +11,7 @@ export default function AiCatalogBanner() {
       viewport={{ once: true }}
       className='col-span-full mt-8 mb-12'
     >
-      <div className='relative overflow-hidden rounded-[32px] glass border border-primary/20 bg-primary/5 p-8 md:p-12'>
+      <div className='relative overflow-hidden rounded-4xl glass border border-primary/20 bg-primary/5 p-8 md:p-12'>
         {/* Background Decorative Elements */}
         <div className='absolute top-0 right-0 w-64 h-64 bg-primary/10 blur-[80px] rounded-full -mr-20 -mt-20' />
         <div className='absolute bottom-0 left-0 w-48 h-48 bg-primary/5 blur-[60px] rounded-full -ml-10 -mb-10' />
@@ -47,7 +47,7 @@ export default function AiCatalogBanner() {
 
         {/* Animated Scan Line (Sutil) */}
         <div className='absolute inset-0 pointer-events-none opacity-20'>
-          <div className='absolute top-0 left-0 w-full h-[1px] bg-primary animate-[scan_6s_infinite]' />
+          <div className='absolute top-0 left-0 w-full h-px bg-primary animate-[scan_6s_infinite]' />
         </div>
       </div>
     </motion.div>

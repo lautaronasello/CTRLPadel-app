@@ -3,27 +3,17 @@
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { Product } from '../types/product';
 
 interface ProductCardProps {
-  product: {
-    id: string;
-    name: string;
-    description: string;
-    category: string;
-    brand: string;
-    imageUrl?: string;
-    variants: Array<{
-      price: number;
-      stock: number;
-      imageUrl?: string;
-    }>;
-  };
+  product: Product;
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
   const mainVariant = product.variants[0];
   const price = mainVariant?.price || 0;
-  const image = (product as any).imageUrl || mainVariant?.imageUrl || '/next.svg';
+  const image =
+    (product as Product).imageUrl || mainVariant?.imageUrl || '/next.svg';
 
   return (
     <Link href={`/catalog/${product.id}`}>
@@ -47,7 +37,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             fill
             className='object-cover transition-transform duration-700 group-hover:scale-110'
           />
-          <div className='absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500' />
+          <div className='absolute inset-0 bg-linear-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500' />
         </div>
 
         {/* Content */}

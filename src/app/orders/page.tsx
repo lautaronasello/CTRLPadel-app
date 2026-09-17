@@ -6,11 +6,27 @@ import { useAuth } from '@/context/AuthContext';
 import Image from 'next/image';
 import Link from 'next/link';
 
+interface Product {
+  name: string;
+  imageUrl?: string;
+}
+
+interface ProductVariant {
+  imageUrl?: string;
+  product: Product;
+}
+
+interface OrderItem {
+  id: string;
+  quantity: number;
+  variant: ProductVariant;
+}
+
 interface Order {
   id: string;
   totalAmount: number;
   status: 'PENDING' | 'PAID' | 'SHIPPED' | 'CANCELLED';
-  items: any[];
+  items: OrderItem[];
 }
 
 export default function OrdersPage() {
@@ -139,7 +155,7 @@ export default function OrdersPage() {
                 key={order.id}
                 initial={{ opacity: 0, x: -20 }}
                 whileInView={{ opacity: 1, x: 0 }}
-                className='glass p-8 rounded-[2rem] border-border hover:border-primary/30 transition-all group'
+                className='glass p-8 rounded-4xl border-border hover:border-primary/30 transition-all group'
               >
                 <div className='flex flex-col lg:flex-row gap-8'>
                   {/* Info de la Orden */}
@@ -154,14 +170,14 @@ export default function OrdersPage() {
                         </p>
                       </div>
                       <span
-                        className={`px-4 py-1.5 rounded-full text-[10px] tracking-[0.1em] shadow-lg font-bold ${getStatusStyle(order.status)}`}
+                        className={`px-4 py-1.5 rounded-full text-[10px] tracking-widest shadow-lg font-bold ${getStatusStyle(order.status)}`}
                       >
                         {getStatusLabel(order.status)}
                       </span>
                     </div>
 
                     <div className='grid grid-cols-2 gap-4'>
-                      {order.items.map((item: any) => (
+                      {order.items.map((item: OrderItem) => (
                         <div
                           key={item.id}
                           className='flex items-center gap-4 bg-background/50 p-3 rounded-2xl border border-border'

@@ -4,12 +4,14 @@ import { useEffect, useState } from 'react';
 import ProductCard from '@/components/ProductCard';
 import ProductFilters from '@/components/ProductFilters';
 import AiCatalogBanner from '@/components/AiCatalogBanner';
+import { Product } from '../../types/product';
+import { SearchFilters } from '../../types/filters';
 
 export default function CatalogPage() {
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState('');
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<SearchFilters>({
     brand: [],
     gameStyle: [],
     level: [],
@@ -19,9 +21,31 @@ export default function CatalogPage() {
     maxPrice: 1000000,
   });
 
-  useEffect(() => {
+  const handleCategoryChange = (catValue: string) => {
     setLoading(true);
+    setCategory(catValue);
+  };
 
+  const handleFilterChange = (newFilters: SearchFilters) => {
+    setLoading(true);
+    setFilters(newFilters);
+  };
+
+  const handleResetFilters = () => {
+    setLoading(true);
+    setCategory('');
+    setFilters({
+      brand: [],
+      gameStyle: [],
+      level: [],
+      shape: [],
+      balance: [],
+      touch: [],
+      maxPrice: 1000000,
+    });
+  };
+
+  useEffect(() => {
     let cancelled = false;
 
     async function fetchProducts() {
@@ -32,16 +56,23 @@ export default function CatalogPage() {
           params.append('maxPrice', filters.maxPrice.toString());
 
         // Agregar arrays de filtros
-        ['brand', 'gameStyle', 'level', 'shape', 'balance', 'touch'].forEach(
-          (key) => {
-            const values = (filters as any)[key];
-            if (values && values.length > 0) {
-              // Para simplificar, tomamos el primero o mandamos todos según soporte el back
-              // Nuestro back actual toma un valor por query param, así que mandamos el primero si hay
-              params.append(key, values[0]);
-            }
-          },
-        );
+        const arrayKeys: (keyof Omit<SearchFilters, 'maxPrice'>)[] = [
+          'brand',
+          'gameStyle',
+          'level',
+          'shape',
+          'balance',
+          'touch',
+        ];
+
+        arrayKeys.forEach((key) => {
+          const values = filters[key];
+          if (values && values.length > 0) {
+            // Para simplificar, tomamos el primero o mandamos todos según soporte el back
+            // Nuestro back actual toma un valor por query param, así que mandamos el primero si hay
+            params.append(key, values[0]);
+          }
+        });
 
         const url = `${process.env.NEXT_PUBLIC_API_URL}/products?${params.toString()}`;
         const res = await fetch(url);
@@ -77,7 +108,7 @@ export default function CatalogPage() {
 
       <div className='flex flex-col lg:flex-row gap-12'>
         {/* Sidebar Filters */}
-        <ProductFilters activeFilters={filters} onFilterChange={setFilters} />
+        <ProductFilters activeFilters={filters} onFilterChange={handleFilterChange} />
 
         {/* Main Content */}
         <div className='flex-1 space-y-8'>
@@ -91,7 +122,7 @@ export default function CatalogPage() {
             ].map((cat) => (
               <button
                 key={cat.value}
-                onClick={() => setCategory(cat.value)}
+                onClick={() => handleCategoryChange(cat.value)}
                 className={`px-5 py-2 rounded-xl border transition-all text-[10px] font-black tracking-widest uppercase ${
                   category === cat.value
                     ? 'bg-primary text-black! border-primary shadow-[0_0_15px_rgba(204,255,0,0.2)]'
@@ -128,18 +159,7 @@ export default function CatalogPage() {
                 No encontramos productos que coincidan con estos filtros.
               </p>
               <button
-                onClick={() => {
-                  setCategory('');
-                  setFilters({
-                    brand: [],
-                    gameStyle: [],
-                    level: [],
-                    shape: [],
-                    balance: [],
-                    touch: [],
-                    maxPrice: 1000000,
-                  });
-                }}
+                onClick={handleResetFilters}
                 className='text-primary font-black uppercase text-xs tracking-widest hover:underline'
               >
                 Limpiar filtros y ver todo
