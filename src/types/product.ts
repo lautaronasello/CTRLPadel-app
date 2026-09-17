@@ -11,6 +11,7 @@ export interface ProductVariant {
 }
 
 export interface Product {
+  imageUrl: string | null;
   id: string;
   name: string;
   description: string | null;

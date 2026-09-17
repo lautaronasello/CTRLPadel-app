@@ -33,6 +33,7 @@ export default function AdminDashboard() {
       }
 
       if (activeTab === 'products') {
+        // eslint-disable-next-line react-hooks/immutability
         await fetchProducts();
       }
     };
@@ -185,11 +186,14 @@ export default function AdminDashboard() {
                     <td className='px-6 py-4'>
                       <div className='flex items-center gap-4'>
                         <div className='w-12 h-12 bg-muted/20 rounded-lg overflow-hidden flex-shrink-0'>
-                          {product.variants?.[0]?.imageUrl || product.imageUrl ? (
+                          {product.variants?.[0]?.imageUrl ||
+                          product.imageUrl ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img
                               src={(() => {
-                                const url = product.variants?.[0]?.imageUrl || product.imageUrl;
+                                const url =
+                                  product.variants?.[0]?.imageUrl ||
+                                  product.imageUrl;
                                 if (!url) return '/next.svg';
                                 if (url.startsWith('http')) return url;
                                 return `${process.env.NEXT_PUBLIC_API_URL}${url}`;
