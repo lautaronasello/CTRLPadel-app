@@ -11,6 +11,13 @@ export interface ProductVariant {
 }
 
 export interface Product {
+  level: string;
+  faceMaterial: string;
+  nucleus: string;
+  touch: string;
+  balance: string;
+  shape: string;
+  gameStyle: string;
   imageUrl: string | null;
   id: string;
   name: string;

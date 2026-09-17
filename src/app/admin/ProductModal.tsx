@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { X, Save, Loader2, Upload, Image as ImageIcon } from 'lucide-react';
 import { Product, Category } from '@/types/product';
+import Image from 'next/image';
 
 interface ProductModalProps {
   isOpen: boolean;
@@ -208,10 +209,12 @@ export default function ProductModal({
               <div className='w-32 h-32 bg-muted/20 rounded-2xl border-2 border-dashed border-border flex items-center justify-center overflow-hidden group relative'>
                 {formData.imageUrl ? (
                   <>
-                    <img
-                      src={formData.imageUrl.startsWith('http') 
-                        ? formData.imageUrl 
-                        : `${process.env.NEXT_PUBLIC_API_URL}${formData.imageUrl}`
+                    <Image
+                      alt={`${formData.name}`}
+                      src={
+                        formData.imageUrl.startsWith('http')
+                          ? formData.imageUrl
+                          : `${process.env.NEXT_PUBLIC_API_URL}${formData.imageUrl}`
                       }
                       className='w-full h-full object-cover'
                     />
@@ -376,106 +379,134 @@ export default function ProductModal({
               <h3 className='text-xs font-black uppercase tracking-widest text-primary italic'>
                 Especificaciones Técnicas
               </h3>
-              
+
               <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
                 <div className='space-y-2'>
-                  <label className='text-[10px] font-black uppercase tracking-widest text-muted'>Nivel</label>
-                  <select 
+                  <label className='text-[10px] font-black uppercase tracking-widest text-muted'>
+                    Nivel
+                  </label>
+                  <select
                     className='w-full bg-background border border-border rounded-xl py-3 px-4 outline-none focus:border-primary transition-all text-xs appearance-none'
                     value={formData.level}
-                    onChange={(e) => setFormData({...formData, level: e.target.value})}
+                    onChange={(e) =>
+                      setFormData({ ...formData, level: e.target.value })
+                    }
                   >
-                    <option value="NOT_SPECIFIED">Sin especificar</option>
-                    <option value="BEGINNER">Principiante</option>
-                    <option value="INTERMEDIATE">Intermedio</option>
-                    <option value="ADVANCED">Avanzado</option>
+                    <option value='NOT_SPECIFIED'>Sin especificar</option>
+                    <option value='BEGINNER'>Principiante</option>
+                    <option value='INTERMEDIATE'>Intermedio</option>
+                    <option value='ADVANCED'>Avanzado</option>
                   </select>
                 </div>
 
                 <div className='space-y-2'>
-                  <label className='text-[10px] font-black uppercase tracking-widest text-muted'>Estilo</label>
-                  <select 
+                  <label className='text-[10px] font-black uppercase tracking-widest text-muted'>
+                    Estilo
+                  </label>
+                  <select
                     className='w-full bg-background border border-border rounded-xl py-3 px-4 outline-none focus:border-primary transition-all text-xs appearance-none'
                     value={formData.gameStyle}
-                    onChange={(e) => setFormData({...formData, gameStyle: e.target.value})}
+                    onChange={(e) =>
+                      setFormData({ ...formData, gameStyle: e.target.value })
+                    }
                   >
-                    <option value="NOT_SPECIFIED">Sin especificar</option>
-                    <option value="CONTROL">Control</option>
-                    <option value="POWER">Potencia</option>
-                    <option value="VERSATILE">Polivalente</option>
+                    <option value='NOT_SPECIFIED'>Sin especificar</option>
+                    <option value='CONTROL'>Control</option>
+                    <option value='POWER'>Potencia</option>
+                    <option value='VERSATILE'>Polivalente</option>
                   </select>
                 </div>
 
                 <div className='space-y-2'>
-                  <label className='text-[10px] font-black uppercase tracking-widest text-muted'>Forma</label>
-                  <select 
+                  <label className='text-[10px] font-black uppercase tracking-widest text-muted'>
+                    Forma
+                  </label>
+                  <select
                     className='w-full bg-background border border-border rounded-xl py-3 px-4 outline-none focus:border-primary transition-all text-xs appearance-none'
                     value={formData.shape}
-                    onChange={(e) => setFormData({...formData, shape: e.target.value})}
+                    onChange={(e) =>
+                      setFormData({ ...formData, shape: e.target.value })
+                    }
                   >
-                    <option value="NOT_SPECIFIED">Sin especificar</option>
-                    <option value="ROUND">Redonda</option>
-                    <option value="TEARDROP">Lágrima</option>
-                    <option value="DIAMOND">Diamante</option>
+                    <option value='NOT_SPECIFIED'>Sin especificar</option>
+                    <option value='ROUND'>Redonda</option>
+                    <option value='TEARDROP'>Lágrima</option>
+                    <option value='DIAMOND'>Diamante</option>
                   </select>
                 </div>
 
                 <div className='space-y-2'>
-                  <label className='text-[10px] font-black uppercase tracking-widest text-muted'>Balance</label>
-                  <select 
+                  <label className='text-[10px] font-black uppercase tracking-widest text-muted'>
+                    Balance
+                  </label>
+                  <select
                     className='w-full bg-background border border-border rounded-xl py-3 px-4 outline-none focus:border-primary transition-all text-xs appearance-none'
                     value={formData.balance}
-                    onChange={(e) => setFormData({...formData, balance: e.target.value})}
+                    onChange={(e) =>
+                      setFormData({ ...formData, balance: e.target.value })
+                    }
                   >
-                    <option value="NOT_SPECIFIED">Sin especificar</option>
-                    <option value="LOW">Bajo</option>
-                    <option value="MEDIUM">Medio</option>
-                    <option value="HIGH">Alto</option>
+                    <option value='NOT_SPECIFIED'>Sin especificar</option>
+                    <option value='LOW'>Bajo</option>
+                    <option value='MEDIUM'>Medio</option>
+                    <option value='HIGH'>Alto</option>
                   </select>
                 </div>
 
                 <div className='space-y-2'>
-                  <label className='text-[10px] font-black uppercase tracking-widest text-muted'>Tacto</label>
-                  <select 
+                  <label className='text-[10px] font-black uppercase tracking-widest text-muted'>
+                    Tacto
+                  </label>
+                  <select
                     className='w-full bg-background border border-border rounded-xl py-3 px-4 outline-none focus:border-primary transition-all text-xs appearance-none'
                     value={formData.touch}
-                    onChange={(e) => setFormData({...formData, touch: e.target.value})}
+                    onChange={(e) =>
+                      setFormData({ ...formData, touch: e.target.value })
+                    }
                   >
-                    <option value="NOT_SPECIFIED">Sin especificar</option>
-                    <option value="SOFT">Blando</option>
-                    <option value="MEDIUM">Medio</option>
-                    <option value="HARD">Duro</option>
+                    <option value='NOT_SPECIFIED'>Sin especificar</option>
+                    <option value='SOFT'>Blando</option>
+                    <option value='MEDIUM'>Medio</option>
+                    <option value='HARD'>Duro</option>
                   </select>
                 </div>
 
                 <div className='space-y-2'>
-                  <label className='text-[10px] font-black uppercase tracking-widest text-muted'>Núcleo</label>
-                  <select 
+                  <label className='text-[10px] font-black uppercase tracking-widest text-muted'>
+                    Núcleo
+                  </label>
+                  <select
                     className='w-full bg-background border border-border rounded-xl py-3 px-4 outline-none focus:border-primary transition-all text-xs appearance-none'
                     value={formData.nucleus}
-                    onChange={(e) => setFormData({...formData, nucleus: e.target.value})}
+                    onChange={(e) =>
+                      setFormData({ ...formData, nucleus: e.target.value })
+                    }
                   >
-                    <option value="NOT_SPECIFIED">Sin especificar</option>
-                    <option value="FOAM">FOAM</option>
-                    <option value="EVA_SOFT">EVA Soft</option>
-                    <option value="EVA_MEDIUM">EVA Media</option>
-                    <option value="EVA_HARD">EVA Hard</option>
+                    <option value='NOT_SPECIFIED'>Sin especificar</option>
+                    <option value='FOAM'>FOAM</option>
+                    <option value='EVA_SOFT'>EVA Soft</option>
+                    <option value='EVA_MEDIUM'>EVA Media</option>
+                    <option value='EVA_HARD'>EVA Hard</option>
                   </select>
                 </div>
 
                 <div className='space-y-2'>
-                  <label className='text-[10px] font-black uppercase tracking-widest text-muted'>Material Caras</label>
-                  <select 
+                  <label className='text-[10px] font-black uppercase tracking-widest text-muted'>
+                    Material Caras
+                  </label>
+                  <select
                     className='w-full bg-background border border-border rounded-xl py-3 px-4 outline-none focus:border-primary transition-all text-xs appearance-none'
                     value={formData.faceMaterial}
-                    onChange={(e) => setFormData({...formData, faceMaterial: e.target.value})}
+                    onChange={(e) =>
+                      setFormData({ ...formData, faceMaterial: e.target.value })
+                    }
                   >
-                    <option value="NOT_SPECIFIED">Sin especificar</option>
-                    <option value="FIBERGLASS">Fibra de Vidrio</option>
-                    <option value="CARBON_3K">Carbono 3K</option>
-                    <option value="CARBON_12K">Carbono 12K</option>
-                    <option value="CARBON_18K">Carbono 18K</option>
-                    <option value="HYBRID">Híbrido</option>
+                    <option value='NOT_SPECIFIED'>Sin especificar</option>
+                    <option value='FIBERGLASS'>Fibra de Vidrio</option>
+                    <option value='CARBON_3K'>Carbono 3K</option>
+                    <option value='CARBON_12K'>Carbono 12K</option>
+                    <option value='CARBON_18K'>Carbono 18K</option>
+                    <option value='HYBRID'>Híbrido</option>
                   </select>
                 </div>
               </div>
